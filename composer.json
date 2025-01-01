@@ -1,0 +1,7 @@
+{
+        "minimum-stability": "dev",
+        "prefer-stable": true,
+        "require": {
+                "resend/resend-php": "^0.15.0"
+        }
+}
