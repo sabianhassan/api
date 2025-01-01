@@ -1,10 +1,9 @@
-<?php
+<?php 
 require_once __DIR__ . '/../vendor/autoload.php'; // Correct path to autoload.php
-
 
 class OTP {
     private $conn;
-    private $table = "otps";
+    private $table = "otp";
 
     public $id;
     public $user_id;
@@ -37,17 +36,26 @@ class OTP {
         $this->expires_at = date("Y-m-d H:i:s", strtotime("+10 minutes"));
         $this->user_id = $user_id;
 
+        // Save OTP to the database
         if (!$this->saveOTP()) {
             throw new Exception("Failed to save OTP.");
         }
 
-        $resend = new \Resend\Resend("re_SBf6bmS3_CSh7UnVQVvP5vB9iyVnzDH53");
-        $resend->emails->send([
-            "from" => "no-reply@yourdomain.com",
-            "to" => $email,
-            "subject" => "Your OTP Code",
-            "html" => "<p>Your OTP code is <strong>{$this->otp}</strong>. It is valid for 10 minutes.</p>"
-        ]);
+        try {
+            // Send OTP via email using Resend service
+            $resend = \Resend::client('re_SBf6bmS3_CSh7UnVQVvP5vB9iyVnzDH53'); // Replace with actual Resend API key
+            $result = $resend->emails->send([
+                "from" => "no-reply@yourdomain.com",
+                "to" => [$email],
+                "subject" => "Your OTP Code",
+                "html" => "<p>Your OTP code is <strong>{$this->otp}</strong>. It is valid for 10 minutes.</p>"
+            ]);
+        } catch (Exception $e) {
+            // Catch any email sending errors
+            throw new Exception("Failed to send OTP email: " . $e->getMessage());
+        }
+
+        return $this->otp;  // Return OTP for confirmation or logging purposes
     }
 
     public function verifyOTP($user_id, $otp) {

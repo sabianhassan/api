@@ -2,6 +2,7 @@
         "minimum-stability": "dev",
         "prefer-stable": true,
         "require": {
-                "resend/resend-php": "^0.15.0"
+                "resend/resend-php": "^0.15.0",
+                "ralouphie/getallheaders": "^3.0"
         }
 }
