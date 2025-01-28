@@ -1,4 +1,5 @@
 <?php
+include ('classes/Database.php');
 require_once 'classes/User.php';
 require_once 'classes/OTP.php';
 
