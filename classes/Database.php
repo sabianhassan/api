@@ -20,7 +20,6 @@ function connectDatabase() {
         $pdo->query("SELECT 1"); // Basic query to test connection
         
         // Return the PDO connection
-        echo "Connection successful!"; // Success message if no errors occurred
         return $pdo;
     } catch (PDOException $e) {
         // Notify the user if the connection fails
@@ -29,5 +28,5 @@ function connectDatabase() {
 }
 
 // Example usage to test the connection
-$pdo = connectDatabase();
+//$pdo = connectDatabase();
 ?>
