@@ -1,3 +1,4 @@
+<?php 
 // Include the necessary class and function files
 require_once 'classes/User.php';
 require_once 'classes/OTP.php';
@@ -69,3 +70,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode($response);
     exit;
 }
+?>
