@@ -1,20 +1,21 @@
-<?php
-// Include necessary classes and functions
+// Include the necessary class and function files
 require_once 'classes/User.php';
 require_once 'classes/OTP.php';
+require_once 'classes/Database.php'; // Include the Database connection file
 
 // Include the PHPMailer email function
-include('../PHPMailer/mailer_demo.php'); // Ensure this includes the sendOtpEmail function
+include('PHPMailer/mailer_demo.php'); // Ensure this includes the sendOtpEmail function
 
 date_default_timezone_set('Africa/Nairobi'); // Set time zone
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Initialize response and output the JSON response at the end
     header('Content-Type: application/json');
     $response = ["status" => "error", "message" => "An error occurred."];
 
     try {
         // Database connection
-        $db = connectDatabase();
+        $db = connectDatabase(); // Now it's defined because Database.php is included
         $user = new User($db);
 
         // Retrieve and sanitize input
@@ -46,16 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Call the sendOtpEmail function to send the OTP email
             $emailSent = sendOtpEmail($_SESSION['email'], $generatedOTP, $_SESSION['name']);
-            if (!$emailSent) {
+            if ($emailSent) {
+                // Success response - send redirect info and message
+                $response = [
+                    "status" => "success",
+                    "message" => "Successfully sent the email. Redirecting to OTP verification page.",
+                    "redirect" => "verify_2fa.php",
+                ];
+            } else {
+                // Handle email sending failure
                 throw new Exception("Failed to send OTP email.");
             }
-
-            // Success response
-            $response = [
-                "status" => "success",
-                "message" => "Login successful. OTP generated and sent via email.",
-                "redirect" => "verify_2fa.php",
-            ];
         } else {
             throw new Exception("Invalid email or password.");
         }
@@ -63,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $response["message"] = $e->getMessage();
     }
 
+    // Send the JSON response to the front-end
     echo json_encode($response);
     exit;
 }
-?>
