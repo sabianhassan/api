@@ -1,8 +1,7 @@
 <?php
-require_once 'config/config.php';
+// Include necessary classes and functions
 require_once 'classes/User.php';
 require_once 'classes/OTP.php';
-require __DIR__ . '/vendor/autoload.php';
 
 date_default_timezone_set('Africa/Nairobi'); // Set time zone
 
@@ -14,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Database connection
         $db = connectDatabase();
         $user = new User($db);
-        $otp = new OTP($db);
 
         // Retrieve and sanitize input
         $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
@@ -27,35 +25,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Authenticate user
         $userData = $user->login($email);
         if ($userData && password_verify($password, $userData['password'])) {
-            // Generate OTP
-            $generatedOTP = random_int(100000, 999999);
-            $otp->email = $email;
-            $otp->otp = $generatedOTP;
-            $otp->created_at = date('Y-m-d H:i:s'); // Current timestamp
-            $otp->expires_at = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-
-            // Save OTP to the database
-            if (!$otp->saveOTP()) {
-                throw new Exception("Failed to save OTP.");
-            }
-
-            // Initialize Resend client
-            // $resend = new \Resend\Resend('re_SBf6bmS3_CSh7UnVQVvP5vB9iyVnzDH53');
-            // $resend->emails->send([
-            //     'from' => 'no-reply@fuelmybuild.com',
-            //     'to' => $email,
-            //     'subject' => 'Your OTP Code',
-            //     'html' => "<p>Your OTP code is: <strong>{$generatedOTP}</strong>. It is valid for 10 minutes.</p>",
-            // ]);
-
-            // Start session and set email
+            // Start session and store email
             session_start();
             $_SESSION['email'] = $email;
+
+            // Generate OTP and store it in the session
+            $otpHandler = new OTP(600); // 10-minute expiration time
+            $generatedOTP = $otpHandler->generateOtp();
+
+            // Save OTP and expiration time in the session
+            $_SESSION['otp'] = $generatedOTP;
+            $_SESSION['otp_expires_at'] = time() + 600; // 10 minutes from now
+
+            // Log the OTP for testing purposes (REMOVE in production!)
+            error_log("Generated OTP for {$email}: {$generatedOTP}");
 
             // Success response
             $response = [
                 "status" => "success",
-                "message" => "Login successful. OTP sent to your email.",
+                "message" => "Login successful. OTP generated and stored.",
                 "redirect" => "verify_2fa.php",
             ];
         } else {
