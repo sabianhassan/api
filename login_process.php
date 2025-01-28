@@ -3,6 +3,9 @@
 require_once 'classes/User.php';
 require_once 'classes/OTP.php';
 
+// Include the PHPMailer email function
+include('../PHPMailer/mailer_demo.php'); // Ensure this includes the sendOtpEmail function
+
 date_default_timezone_set('Africa/Nairobi'); // Set time zone
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -25,9 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Authenticate user
         $userData = $user->login($email);
         if ($userData && password_verify($password, $userData['password'])) {
-            // Start session and store email
+            // Start session and store email and name
             session_start();
             $_SESSION['email'] = $email;
+            $_SESSION['name'] = $userData['name']; // Store the user's name
 
             // Generate OTP and store it in the session
             $otpHandler = new OTP(600); // 10-minute expiration time
@@ -40,10 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Log the OTP for testing purposes (REMOVE in production!)
             error_log("Generated OTP for {$email}: {$generatedOTP}");
 
+            // Call the sendOtpEmail function to send the OTP email
+            $emailSent = sendOtpEmail($_SESSION['email'], $generatedOTP, $_SESSION['name']);
+            if (!$emailSent) {
+                throw new Exception("Failed to send OTP email.");
+            }
+
             // Success response
             $response = [
                 "status" => "success",
-                "message" => "Login successful. OTP generated and stored.",
+                "message" => "Login successful. OTP generated and sent via email.",
                 "redirect" => "verify_2fa.php",
             ];
         } else {
