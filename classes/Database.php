@@ -1,20 +1,28 @@
 <?php
-class Database {
-    private $host = DB_HOST;
-    private $db_name = DB_NAME;
-    private $username = DB_USER;
-    private $password = DB_PASSWORD;
-    private $conn;
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'sacco');
+define('DB_USER', 'root');
+define('DB_PASSWORD', 'saby2030');
 
-    public function connect() {
-        $this->conn = null;
-        try {
-            $this->conn = new PDO("mysql:host={$this->host};dbname={$this->db_name}", $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo "Connection error: " . $e->getMessage();
-        }
-        return $this->conn;
+function connectDatabase() {
+    try {
+        // Set up the DSN for the database connection
+        $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME;
+        
+        // Create a new PDO instance
+        $pdo = new PDO($dsn, DB_USER, DB_PASSWORD);
+        
+        // Set PDO to throw exceptions for errors
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        // Return the PDO connection
+        return $pdo;
+    } catch (PDOException $e) {
+        // Notify the user if the connection fails
+        die("Database connection failed: " . $e->getMessage());
     }
 }
+
+// Example usage
+$pdo = connectDatabase();
 ?>
