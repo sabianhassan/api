@@ -1,8 +1,6 @@
-<?php 
-// Include the necessary class and function files
+<?php
 require_once 'classes/User.php';
 require_once 'classes/OTP.php';
-require_once 'classes/Database.php'; // Include the Database connection file
 
 // Include the PHPMailer email function
 include('PHPMailer/mailer_demo.php'); // Ensure this includes the sendOtpEmail function
@@ -15,9 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $response = ["status" => "error", "message" => "An error occurred."];
 
     try {
-        // Database connection
-        $db = connectDatabase(); // Now it's defined because Database.php is included
-        $user = new User($db);
+        // Connect to the database
+        $db = connectDatabase();  // Getting the database connection
+
+        // Create the User object with the database connection
+        $user = new User($db);  // Ensure db is passed to User class constructor
 
         // Retrieve and sanitize input
         $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
@@ -28,12 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Authenticate user
-        $userData = $user->login($email);
-        if ($userData && password_verify($password, $userData['password'])) {
+        $userData = $user->login($email, $password); // Use login method with email and password
+        if ($userData) {
             // Start session and store email and name
             session_start();
             $_SESSION['email'] = $email;
-            $_SESSION['name'] = $userData['name']; // Store the user's name
+            $_SESSION['name'] = $userData['name'];  // Store the user's name
 
             // Generate OTP and store it in the session
             $otpHandler = new OTP(600); // 10-minute expiration time

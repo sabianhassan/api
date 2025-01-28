@@ -1,3 +1,4 @@
+<?php 
 class User {
     private $conn;
     private $table = "users";  // Your table name
@@ -46,3 +47,4 @@ class User {
         return null;  // Return null if login fails
     }
 }
+?>
