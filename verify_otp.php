@@ -1,13 +1,11 @@
 <?php
-//require_once 'config/config.php'; // Assuming this includes necessary DB connection
 require_once 'classes/OTP.php';
-
-
 
 // Ensure the user is logged in (i.e., the email is present in the session)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['email'])) {
-    $db = connectDatabase();  // Assuming connectDatabase() connects to your DB if needed (this can be commented out if not needed)
-    $otp = new OTP($db);  // Create the OTP class instance if DB interaction is needed, or remove the line if unused
+    // Database connection
+    $db = connectDatabase();  // Assuming connectDatabase() connects to your DB
+    $otp = new OTP($db);  // Create the OTP class instance if DB interaction is needed
 
     $email = $_SESSION['email'];
     $enteredOTP = $_POST['otp'];
@@ -15,24 +13,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['email'])) {
     // Log email and entered OTP for debugging
     echo "Debug - Email: $email, Entered OTP: $enteredOTP<br>";
 
-    // Retrieve OTP and expiration timestamp from the session
-    if (isset($_SESSION['otp']) && isset($_SESSION['otp_expires_at'])) {
-        $storedOTP = $_SESSION['otp'];  // The OTP stored in session
-        $otpExpirationTime = $_SESSION['otp_expires_at'];  // The expiration timestamp from session
-        
-        // Check if the entered OTP matches the stored one and has not expired
+    // Retrieve the OTP and expiration time from the database
+    $stmt = $db->prepare("SELECT otp_code, expiry_time FROM otp_verifications WHERE user_email = ? ORDER BY created_at DESC LIMIT 1");
+    $stmt->execute([$email]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        // Retrieve OTP and expiration time from the database record
+        $storedOTP = $row['otp_code'];
+        $otpExpirationTime = strtotime($row['expiry_time']);  // Convert expiry_time to timestamp
+
+        // Log the OTP for debugging (REMOVE in production!)
+        echo "Debug - Stored OTP: $storedOTP, Expiry Time: $otpExpirationTime<br>";
+
+        // Check if the entered OTP matches and has not expired
         if ($enteredOTP == $storedOTP) {
             if (time() < $otpExpirationTime) {
                 // OTP is correct and has not expired
                 echo "OTP successfully verified. Proceeding with action.";
 
-                // Optionally, clear OTP after verification if required
-                unset($_SESSION['otp']);
-                unset($_SESSION['otp_expires_at']);
+                // Invalidate OTP in the database (remove it after successful verification)
+                $otp->invalidateOtp($email);  // Call invalidateOtp method to remove OTP from the database
 
                 // Redirect to the dashboard or any other page
                 header("Location: views/dashboard.php");
-                exit; // Always call exit after a redirect
+                exit;  // Always call exit after a redirect
             } else {
                 echo "OTP has expired. Please request a new one.";
             }
@@ -40,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['email'])) {
             echo "Invalid OTP!";
         }
     } else {
-        echo "No OTP found in session!";
+        echo "No OTP found in the database for this email!";
     }
 } else {
     echo "Unauthorized access!";
