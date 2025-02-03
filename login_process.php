@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 include ('classes/Database.php');
 require_once 'classes/User.php';
 require_once 'classes/OTP.php';
@@ -24,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'];
 
-        if (empty($email) || empty($password)) {
+       if (empty($email) || empty($password)) {
             throw new Exception("Email and password are required.");
         }
 
@@ -48,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log("Generated OTP for {$email}: {$generatedOTP}");
 
             // Call the sendOtpEmail function to send the OTP email
-            $emailSent = sendOtpEmail($_SESSION['email'], $generatedOTP, $_SESSION['name']);
+            $emailSent = sendOtpEmail($email, $generatedOTP, $_SESSION['name']);
             if ($emailSent) {
                 // Success response - send redirect info and message
                 $response = [
