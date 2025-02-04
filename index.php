@@ -31,12 +31,47 @@ session_start();
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="overlay">
-            <h1>WELCOME TO JAMBO HOTEL RESERVATIONS</h1>
+    <!-- Hero Section with Bootstrap Carousel -->
+<section id="hero-carousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#hero-carousel" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#hero-carousel" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#hero-carousel" data-bs-slide-to="2"></button>
+    </div>
+
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="assets/images/best-pink-hotels-Cobblers-Cove-hotel.jpg." class="d-block w-100" alt="Hotel View 1">
+            <div class="carousel-caption">
+                <h2>WELCOME TO JAMBO HOTEL</h2>
+                <p>Experience luxury like never before</p>
+            </div>
         </div>
-    </section>
+        <div class="carousel-item">
+            <img src="assets/images/Top-10-Luxury-Hotels.jpg" class="d-block w-100" alt="Hotel View 2">
+            <div class="carousel-caption">
+                <h2>RELAX & ENJOY</h2>
+                <p>Unwind in our world-class rooms</p>
+            </div>
+        </div>
+        <div class="carousel-item">
+            <img src="assets/images\karibu.jpg" class="d-block w-100" alt="Hotel View 3">
+            <div class="carousel-caption">
+                <h2>BOOK YOUR STAY</h2>
+                <p>Reserve your perfect getaway today</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carousel Controls -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#hero-carousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#hero-carousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+</section>
+
     <!-- About Us Section -->
     <section class="about-us py-5">
         <div class="container text-center">
@@ -45,22 +80,17 @@ session_start();
                 Jambo Hotel is a premier destination for luxury and comfort. We provide world-class accommodation 
                 with top-notch services to ensure your stay is unforgettable. 
             </p>
-            
         </div>
     </section>
-
     <!-- Contact Section -->
     <section class="contact bg-light py-4">
         <div class="container text-center">
             <h2>Contact Us</h2>
-            <p><i class="fa fa-phone"></i> Phone: +254 712 345 678</p>
+            <p><i class="fa fa-phone"></i> Phone: +254 712 345 675</p>
             <p><i class="fa fa-envelope"></i> Email: info@jambohotel.com</p>
             <p><i class="fa fa-map-marker"></i> Address: Nairobi, Kenya</p>
         </div>
 
-    
-
-            
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

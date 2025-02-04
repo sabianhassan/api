@@ -16,17 +16,19 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* Hero Section */
-.hero {
-    background: url('assets/images/banner.jpg') no-repeat center center/cover;
-    height: 400px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgb(92, 82, 82);
-    text-align: center;
-    position: relative;
+/* Hero Carousel Styling */
+#hero-carousel .carousel-item img {
+    height: 400px; /* Adjust height as needed */
+    object-fit: cover;
 }
+
+.carousel-caption {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 5px;
+    color: white; /* Ensure text is visible */
+}
+
 
 .hero .overlay {
     background: rgba(0, 0, 0, 0.5);
