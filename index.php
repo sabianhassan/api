@@ -23,8 +23,10 @@ session_start();
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#">login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="views/login.php">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="views/register.php">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="views/dashboard.php">Dashboard</a></li>
+                    
                     
                 </ul>
             </div>
