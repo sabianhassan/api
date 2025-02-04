@@ -1,5 +1,6 @@
 <?php include_once '../templates/header.php'; ?>
 
+
 <div class="container mt-5">
     <h2>Verify 2FA</h2>
     <form action="../verify_otp.php" method="POST">

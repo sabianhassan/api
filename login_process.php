@@ -1,67 +1,46 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 include ('classes/Database.php');
 require_once 'classes/User.php';
 require_once 'classes/OTP.php';
+include('PHPMailer/mailer_demo.php');
 
-// Include the PHPMailer email function
-include('PHPMailer/mailer_demo.php'); // Ensure this includes the sendOtpEmail function
-
-date_default_timezone_set('Africa/Nairobi'); // Set time zone
+date_default_timezone_set('Africa/Nairobi');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Initialize response and output the JSON response at the end
     header('Content-Type: application/json');
     $response = ["status" => "error", "message" => "An error occurred."];
 
     try {
-        // Connect to the database
-        $db = connectDatabase();  // Getting the database connection
+        $db = connectDatabase();
+        $user = new User($db);
 
-        // Create the User object with the database connection
-        $user = new User($db);  // Ensure db is passed to User class constructor
-
-        // Retrieve and sanitize input
         $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'];
 
-       if (empty($email) || empty($password)) {
+        if (empty($email) || empty($password)) {
             throw new Exception("Email and password are required.");
         }
 
-        // Authenticate user
-        $userData = $user->login($email, $password); // Use login method with email and password
+        $userData = $user->login($email, $password);
+
         if ($userData) {
-            // Start session and store email and name
             session_start();
-            $_SESSION['email'] = $email;
-            $_SESSION['name'] = $userData['name'];  // Store the user's name
+            $_SESSION['email'] = $userData['email'];
+            $_SESSION['name'] = $userData['name'];
 
-            // Generate OTP and store it in the session
-            $otpHandler = new OTP(600); // 10-minute expiration time
+            $otpHandler = new OTP(600);
             $generatedOTP = $otpHandler->generateOtp();
-
-            // Save OTP and expiration time in the session
             $_SESSION['otp'] = $generatedOTP;
-            $_SESSION['otp_expires_at'] = time() + 600; // 10 minutes from now
 
-            // Log the OTP for testing purposes (REMOVE in production!)
-            error_log("Generated OTP for {$email}: {$generatedOTP}");
+            $emailSent = sendOtpEmail($userData['email'], $generatedOTP, $userData['name']);
 
-            // Call the sendOtpEmail function to send the OTP email
-            $emailSent = sendOtpEmail($email, $generatedOTP, $_SESSION['name']);
             if ($emailSent) {
-                // Success response - send redirect info and message
                 $response = [
                     "status" => "success",
                     "message" => "Successfully sent the email. Redirecting to OTP verification page.",
                     "redirect" => "verify_2fa.php",
                 ];
             } else {
-                // Handle email sending failure
                 throw new Exception("Failed to send OTP email.");
             }
         } else {
@@ -71,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $response["message"] = $e->getMessage();
     }
 
-    // Send the JSON response to the front-end
     echo json_encode($response);
     exit;
 }

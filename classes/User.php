@@ -27,29 +27,26 @@ class User {
 
     // Login function
     public function login($email, $password) {
-        // Sanitize input email
         $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-    
-        // Query to fetch user by email
-        $query = "SELECT name, password FROM {$this->table} WHERE email = :email LIMIT 1";
+
+        $query = "SELECT userid, name, email, password FROM {$this->table} WHERE email = :email LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":email", $email);
         $stmt->execute();
-    
-        // If user is found
+
         if ($stmt->rowCount() > 0) {
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-            // Use password_verify to check if the provided password matches the stored hash
+
             if (password_verify($password, $userData['password'])) {
-                return $userData;  // Return user data if passwords match
+                return [
+                    "userid" => $userData["userid"],
+                    "name" => $userData["name"],
+                    "email" => $userData["email"]
+                ];
             }
         }
-    
-        // Return null if login fails (invalid email or password)
+
         return null;
     }
-    
-    
 }
 ?>
