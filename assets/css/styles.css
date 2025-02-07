@@ -10,48 +10,192 @@ body {
     background-color: #007bff;
     border-color: #007bff;
 }
-
 /* index.php styling */
+
 body {
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: #343a40 !important; /* Dark theme */
+}
+
+.navbar .navbar-brand {
+    font-size: 22px;
+    font-weight: bold;
+    color: white !important;
+}
+
+.navbar .nav-link {
+    color: white !important;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: 0.3s ease-in-out;
+}
+
+/* Navbar Link Hover Effect */
+.navbar .nav-link:hover {
+    background-color: #f8c471 !important;
+    color: black !important;
 }
 
 /* Hero Carousel Styling */
 #hero-carousel .carousel-item img {
-    height: 400px; /* Adjust height as needed */
+    height: 500px; /* Adjust height for full view */
     object-fit: cover;
 }
 
+/* Carousel Caption */
 .carousel-caption {
     background: rgba(0, 0, 0, 0.5);
-    padding: 10px;
+    padding: 15px;
     border-radius: 5px;
-    color: white; /* Ensure text is visible */
+    color: white;
 }
 
-
-.hero .overlay {
-    background: rgba(0, 0, 0, 0.5);
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+.carousel-caption h2 {
+    font-size: 32px;
+    font-weight: bold;
 }
 
-/* Form Styles */
-.container {
+.carousel-caption p {
+    font-size: 18px;
+}
+
+/* About Us Section */
+.about-us {
+    background-color: #f8f9fa;
+    padding: 50px 0;
     text-align: center;
 }
 
-form {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 10px;
+.about-us h2 {
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 15px;
 }
 
-form img {
-    margin-bottom: 10px;
+/* Contact Section */
+.contact {
+    padding: 40px 0;
+    text-align: center;
 }
+
+.contact h2 {
+    font-size: 26px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.contact p {
+    font-size: 18px;
+    margin: 5px 0;
+}
+
+/* Contact Icons */
+.contact i {
+    color: #007bff;
+    margin-right: 10px;
+}
+
+/* Buttons (Login, Register, Dashboard) */
+.navbar .nav-item .btn {
+    background-color: #007bff; /* Bootstrap blue */
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+/* Hover Effect for Buttons */
+.navbar .nav-item .btn:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+/* Ensure Buttons are Visible */
+.btn {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #hero-carousel .carousel-item img {
+        height: 300px;
+    }
+
+    .carousel-caption h2 {
+        font-size: 24px;
+    }
+
+    .carousel-caption p {
+        font-size: 16px;
+    }
+}
+
+
+/* dashboard.php styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.container {
+    width: 50%;
+    margin: auto;
+    text-align: center;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+input, select {
+    width: 80%;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+button {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: green;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: darkgreen;
+}
+
+.logout-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background-color: red;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
 
