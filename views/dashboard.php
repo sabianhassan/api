@@ -1,52 +1,27 @@
 <?php include_once '../templates/header.php'; ?>
+
 <div class="container mt-5">
-    <h2 class="text-center">Hotel Management Dashboard</h2>
-    <p class="text-center">Manage rooms, reservations, users, and reports.</p>
+    <h2 class="text-center">Jambo Hotel Management Dashboard</h2>
 
-    <div class="row">
-        <!-- Rooms Section -->
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3>Total Rooms</h3>
-                    <p><strong>50</strong></p>
-                    <a href="manage_rooms.php" class="btn btn-primary">Manage Rooms</a>
-                </div>
-            </div>
-        </div>
+    <div class="dashboard-container">
+        <form action="book.php" method="POST">
+            <label>Select Room:</label>
+            <select name="room_id" required>
+                <option value="1">Single Room - $50</option>
+                <option value="2">Double Room - $80</option>
+                <option value="3">Suite - $150</option>
+            </select>
 
-        <!-- Reservations Section -->
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3>Reservations</h3>
-                    <p><strong>120</strong></p>
-                    <a href="reservations.php" class="btn btn-success">View Reservations</a>
-                </div>
-            </div>
-        </div>
+            <label>Check-in Date:</label>
+            <input type="date" name="check_in" required>
 
-        <!-- Users Section -->
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3>Users</h3>
-                    <p><strong>30</strong></p>
-                    <a href="users.php" class="btn btn-warning">Manage Users</a>
-                </div>
-            </div>
-        </div>
+            <label>Check-out Date:</label>
+            <input type="date" name="check_out" required>
 
-        <!-- Reports Section -->
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h3>Reports</h3>
-                    <p>Analytics & Charts</p>
-                    <a href="reports.php" class="btn btn-danger">View Reports</a>
-                </div>
-            </div>
-        </div>
+            <button type="submit">Book Now</button>
+        </form>
     </div>
+
 </div>
+
 <?php include_once '../templates/footer.php'; ?>
