@@ -142,60 +142,145 @@ body {
 
 
 /* dashboard.php styling */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
-}
-
-.dashboard-container {
-    width: 50%;
-    margin: 30px auto;
-    padding: 20px;
-    background: white;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    text-align: center;
-}
-
-form {
+/* Hero Section */
+.hero {
+    background: url('assets/images/hotel_banner.jpg') center/cover no-repeat;
+    height: 350px;
     display: flex;
     flex-direction: column;
-}
-
-select, input, button {
-    padding: 10px;
-    margin: 10px 0;
-    width: 100%;
-}
-
-button {
-    background: #007bff;
+    justify-content: center;
+    align-items: center;
     color: white;
-    border: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.hero h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+/* Navigation Links */
+.nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #f0a500;
+}
+
+/* Main Selection Grid */
+.selection-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.selection-item {
+    text-align: center;
+    padding: 20px;
+    background: #f8f8f8;
+    border-radius: 10px;
+    width: 200px;
     cursor: pointer;
+    text-decoration: none;
+    color: black;
+    transition: transform 0.3s;
+}
+
+.selection-item img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.selection-item:hover {
+    transform: scale(1.05);
+}
+/*room.php stylinf*/
+/* General Page Styling */
+body {
+    background-color: #f0f0f0; /* Grey background */
+    font-family: Arial, sans-serif;
+}
+
+/* Centered Container */
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Room Selection Layout */
+.room-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Room Cards */
+.room-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Hover Effect */
+.room-card:hover {
+    transform: scale(1.02);
+}
+
+/* Room Images */
+.room-card img {
+    width: 80%; /* Resize images */
+    max-height: 250px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+/* Room Descriptions */
+.room-card p {
+    margin: 10px 0;
     font-size: 16px;
 }
 
-button:hover {
-    background: #0056b3;
-}
-.room-images {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.room-card {
+/* Back Button */
+.back-btn {
+    display: block;
     text-align: center;
-    width: 120px;
-}
-
-.room-img {
-    width: 120%;
-    height: 100px; /* Small image size */
-    object-fit: cover;
+    margin-top: 20px;
+    padding: 10px;
+    background: #333;
+    color: white;
+    text-decoration: none;
     border-radius: 5px;
+    width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: background 0.3s;
 }
 
-
+.back-btn:hover {
+    background: #555;
+}
