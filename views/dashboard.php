@@ -12,6 +12,22 @@
                 <option value="3">Suite - $150</option>
             </select>
 
+            <!-- Room Images Section -->
+            <div class="room-images">
+                <div class="room-card">
+                    <img src="assets\images\single_room.jpg" alt="Single Room" class="room-img">
+                    <p>Single Room</p>
+                </div>
+                <div class="room-card">
+                    <img src="assets/images/double_room.jpg" alt="Double Room" class="room-img">
+                    <p>Double Room</p>
+                </div>
+                <div class="room-card">
+                    <img src="assets/images/suite.jpg" alt="Suite" class="room-img">
+                    <p>Suite</p>
+                </div>
+            </div>
+
             <label>Check-in Date:</label>
             <input type="date" name="check_in" required>
 

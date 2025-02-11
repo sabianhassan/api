@@ -179,4 +179,23 @@ button {
 button:hover {
     background: #0056b3;
 }
+.room-images {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.room-card {
+    text-align: center;
+    width: 120px;
+}
+
+.room-img {
+    width: 120%;
+    height: 100px; /* Small image size */
+    object-fit: cover;
+    border-radius: 5px;
+}
+
 
