@@ -1,0 +1,29 @@
+<?php
+include '../config/database.php';
+
+$pdo = connectDatabase();
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $room_type = $_POST['room_type'];
+    $price = $_POST['price'];
+    $quantity = $_POST['quantity']; 
+
+    $stmt = $pdo->prepare("INSERT INTO rooms (room_type, price, quantity) VALUES (?, ?, ?)");
+    $stmt->execute([$room_type, $price, $quantity]);
+
+    echo "Room added successfully!";
+}
+?>
+
+<form action="" method="POST">
+    <label>Room Type:</label>
+    <input type="text" name="room_type" required>
+    
+    <label>Price:</label>
+    <input type="number" name="price" required>
+
+    <label>Quantity:</label>
+    <input type="number" name="quantity" required>
+
+    <button type="submit">Add Room</button>
+</form>

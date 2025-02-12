@@ -210,7 +210,7 @@ body {
 .selection-item:hover {
     transform: scale(1.05);
 }
-/*room.php stylinf*/
+/*room.php styling */
 /* General Page Styling */
 body {
     background-color: #f0f0f0; /* Grey background */
@@ -233,6 +233,7 @@ body {
 
 /* Room Cards */
 .room-card {
+
     background: white;
     padding: 20px;
     border-radius: 10px;
@@ -243,7 +244,47 @@ body {
     text-align: center;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
+    position: relative;
+    cursor: pointer;
+    border: 2px solid transparent;
+    padding: 10px;
+    transition: 0.3s;
 }
+
+.room-card.selected {
+    border-color: rgb(71, 63, 184);
+    background-color: #e8ffe8;
+}
+
+.tick-mark {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    color: green;
+    display: none;
+}
+
+.room-card.selected .tick-mark {
+    display: block;
+}
+
+.continue-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+}
+
+.continue-btn:hover {
+    background-color: #218838;
+}
+
 
 /* Hover Effect */
 .room-card:hover {
