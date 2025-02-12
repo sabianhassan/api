@@ -33,13 +33,14 @@
 
     <div class="navigation">
         <a href="dashboard.php" class="back-btn">⬅ Back</a>
-        <a href="packages.php" class="continue-btn">Continue ➡</a>
+        <a href="packages.php" class="continue-btn disabled" id="continue-btn">Continue ➡</a>
     </div>
 </div>
 
 <script>
     // Load selected rooms from localStorage
     let selectedRooms = JSON.parse(localStorage.getItem("selected_rooms")) || [];
+    let continueBtn = document.getElementById("continue-btn");
 
     function toggleRoom(id, name) {
         let index = selectedRooms.indexOf(name);
@@ -51,6 +52,18 @@
             document.getElementById(`room-${id}`).classList.add("selected");
         }
         localStorage.setItem("selected_rooms", JSON.stringify(selectedRooms));
+        updateContinueButton();
+    }
+
+    // Update the continue button state
+    function updateContinueButton() {
+        if (selectedRooms.length > 0) {
+            continueBtn.classList.remove("disabled");
+            continueBtn.href = "packages.php";
+        } else {
+            continueBtn.classList.add("disabled");
+            continueBtn.removeAttribute("href");
+        }
     }
 
     // Apply selection styling on page load
@@ -59,6 +72,7 @@
             let roomElement = document.querySelector(`[onclick*="${room}"]`);
             if (roomElement) roomElement.classList.add("selected");
         });
+        updateContinueButton();
     });
 </script>
 
