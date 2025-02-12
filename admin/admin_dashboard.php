@@ -1,7 +1,7 @@
 <?php
-include '../config/database.php'; 
+require_once __DIR__ . '/../classes/Database.php'; // Correct path
 
-$pdo = connectDatabase();
+$pdo = connectDatabase(); 
 
 // Get total rooms
 $total_rooms = $pdo->query("SELECT SUM(quantity) FROM rooms")->fetchColumn();
