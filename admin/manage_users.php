@@ -1,11 +1,11 @@
 <?php
-include '../config/database.php';
+require_once __DIR__ . '/../classes/Database.php'; // Ensure correct path
 $pdo = connectDatabase();
 
-// Delete user
-if (isset($_GET['delete'])) {
-    $user_id = $_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM users WHERE id=?");
+// Securely delete user
+if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+    $user_id = intval($_GET['delete']);
+    $stmt = $pdo->prepare("DELETE FROM users WHERE userid = ?"); // Changed `id` to `userid`
     $stmt->execute([$user_id]);
 }
 
@@ -14,7 +14,7 @@ $stmt = $pdo->query("SELECT * FROM users");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<?php include '../templates/admin_header.php'; ?>
+<?php include __DIR__ . '/../templates/admin_header.php'; ?>
 
 <h2>Manage Users</h2>
 
@@ -26,13 +26,17 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </tr>
     <?php foreach ($users as $user): ?>
     <tr>
-        <td><?= $user['id'] ?></td>
-        <td><?= $user['email'] ?></td>
+        <td><?= isset($user['userid']) ? htmlspecialchars($user['userid']) : 'N/A' ?></td> <!-- Changed `id` to `userid` -->
+        <td><?= htmlspecialchars($user['email']) ?></td>
         <td>
-            <a href="manage_users.php?delete=<?= $user['id'] ?>" onclick="return confirm('Are you sure?')">Delete</a>
+            <?php if (isset($user['userid'])): ?> <!-- Changed `id` to `userid` -->
+                <a href="manage_users.php?delete=<?= $user['userid'] ?>" onclick="return confirm('Are you sure?')">Delete</a>
+            <?php else: ?>
+                N/A
+            <?php endif; ?>
         </td>
     </tr>
     <?php endforeach; ?>
 </table>
 
-<?php include '../templates/admin_footer.php'; ?>
+<?php include __DIR__ . '/../templates/admin_footer.php'; ?>
