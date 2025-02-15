@@ -21,12 +21,66 @@
 
     <div class="navigation">
         <a href="room.php" class="back-btn">⬅ Back</a>
-        <a href="meals.php" class="continue-btn">Continue ➡</a>
+        <button id="save-btn" class="btn btn-secondary">Save Selection</button>
+        <a href="meals.php" class="continue-btn disabled" id="continue-btn">Continue ➡</a>
     </div>
 </div>
 
 <script>
+    // Load selected packages from localStorage
     let selectedPackages = JSON.parse(localStorage.getItem("selected_packages")) || [];
+    let continueBtn = document.getElementById("continue-btn");
+    let saveBtn = document.getElementById("save-btn");
 
     function togglePackage(name) {
-        let formattedId = `package-${name.toLowerCase().replace(/\
+        // Format the ID from the package name
+        let formattedId = `package-${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z-]/g, '')}`;
+        let packageElement = document.getElementById(formattedId);
+        
+        if (!packageElement) return; // If element not found, exit
+
+        let index = selectedPackages.indexOf(name);
+        if (index > -1) {
+            // Remove selection
+            selectedPackages.splice(index, 1);
+            packageElement.classList.remove("selected");
+        } else {
+            // Add selection
+            selectedPackages.push(name);
+            packageElement.classList.add("selected");
+        }
+        localStorage.setItem("selected_packages", JSON.stringify(selectedPackages));
+        updateContinueButton();
+    }
+
+    // Update the continue button state
+    function updateContinueButton() {
+        if (selectedPackages.length > 0) {
+            continueBtn.classList.remove("disabled");
+            continueBtn.href = "meals.php";
+        } else {
+            continueBtn.classList.add("disabled");
+            continueBtn.removeAttribute("href");
+        }
+    }
+
+    // Restore selections on page load
+    document.addEventListener("DOMContentLoaded", function () {
+        selectedPackages.forEach(function(name) {
+            let formattedId = `package-${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z-]/g, '')}`;
+            let packageElement = document.getElementById(formattedId);
+            if (packageElement) {
+                packageElement.classList.add("selected");
+            }
+        });
+        updateContinueButton();
+    });
+
+    // Save Selection Button functionality
+    saveBtn.addEventListener("click", function() {
+        alert("Your selection has been saved: " + JSON.stringify(selectedPackages));
+        console.log("Saved selection:", selectedPackages);
+    });
+</script>
+
+<?php include_once '../templates/footer.php'; ?>

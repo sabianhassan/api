@@ -33,6 +33,7 @@
 
     <div class="navigation">
         <a href="dashboard.php" class="back-btn">⬅ Back</a>
+        <button id="save-btn" class="btn btn-secondary">Save Selection</button>
         <a href="packages.php" class="continue-btn disabled" id="continue-btn">Continue ➡</a>
     </div>
 </div>
@@ -41,6 +42,7 @@
     // Load selected rooms from localStorage
     let selectedRooms = JSON.parse(localStorage.getItem("selected_rooms")) || [];
     let continueBtn = document.getElementById("continue-btn");
+    let saveBtn = document.getElementById("save-btn");
 
     function toggleRoom(id, name) {
         let index = selectedRooms.indexOf(name);
@@ -55,7 +57,7 @@
         updateContinueButton();
     }
 
-    // Update the continue button state
+    // Update the continue button state based on selection
     function updateContinueButton() {
         if (selectedRooms.length > 0) {
             continueBtn.classList.remove("disabled");
@@ -66,13 +68,24 @@
         }
     }
 
-    // Apply selection styling on page load
+    // On page load, restore selections using explicit IDs
     document.addEventListener("DOMContentLoaded", function () {
-        selectedRooms.forEach(room => {
-            let roomElement = document.querySelector(`[onclick*="${room}"]`);
-            if (roomElement) roomElement.classList.add("selected");
-        });
+        if(selectedRooms.includes("Single Room")){
+            document.getElementById("room-1").classList.add("selected");
+        }
+        if(selectedRooms.includes("Double Room")){
+            document.getElementById("room-2").classList.add("selected");
+        }
+        if(selectedRooms.includes("Suite")){
+            document.getElementById("room-3").classList.add("selected");
+        }
         updateContinueButton();
+    });
+
+    // Save Selection Button functionality
+    saveBtn.addEventListener("click", function() {
+        alert("Your selection has been saved: " + JSON.stringify(selectedRooms));
+        console.log("Saved selection:", selectedRooms);
     });
 </script>
 
