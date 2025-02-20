@@ -20,7 +20,7 @@
     <div class="navigation">
         <a href="meals.php" class="back-btn">⬅ Back</a>
         <button id="save-btn" class="btn btn-secondary">Save Selection</button>
-        <a href="confirm_booking.php" class="continue-btn" id="continue-btn">Continue ➡</a>
+        <a href="duration.php" class="continue-btn" id="continue-btn">Continue ➡</a>
     </div>
 </div>
 

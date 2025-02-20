@@ -1,52 +1,91 @@
 <?php
-session_start(); // Start the session so we can access $_SESSION['user_id']
+require_once '../classes/Database.php'; // Ensure correct path
 
-require_once __DIR__ . '/../classes/Database.php'; // Adjust path as needed
+// Extract form values safely
+$user_id = $_POST['user_id'] ?? null;
+$room_id = $_POST['room_id'] ?? null;
+$package = $_POST['package'] ?? null;
+$meal = $_POST['meal'] ?? null;
+$additional = $_POST['additional'] ?? null; // Can be empty
+$check_in = $_POST['check_in'] ?? null;
+$check_out = $_POST['check_out'] ?? null;
+$duration = $_POST['duration'] ?? null;
 
-$pdo = connectDatabase(); // Connect to your MySQL database via PDO
+// Validate required fields
+if (empty($user_id) || empty($room_id) || empty($check_in) || empty($check_out)) {
+    die("<div class='error-message'>Error: Missing required fields.</div>");
+}
 
-// Check if the form was submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // If you have a user login system, ensure $_SESSION['user_id'] is set.
-    // For testing, fallback to 1 if it's not set, but make sure user with userid=1 exists in `users`.
-    $user_id    = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 1;
+try {
+    $conn = connectDatabase(); // Use function to get database connection
 
-    // Retrieve other booking details from POST
-    $room       = $_POST["room"]       ?? '';
-    $package    = $_POST["package"]    ?? '';
-    $meal       = $_POST["meal"]       ?? '';
-    $additional = $_POST["additional"] ?? '';
+    // Insert booking into the database
+    $stmt = $conn->prepare("INSERT INTO bookings (user_id, room_id, package, meal, additional, check_in, check_out, duration, status) 
+                            VALUES (:user_id, :room_id, :package, :meal, :additional, :check_in, :check_out, :duration, 'Pending')");
+    
+    $stmt->execute([
+        ':user_id' => $user_id,
+        ':room_id' => $room_id,
+        ':package' => $package,
+        ':meal' => $meal,
+        ':additional' => $additional,
+        ':check_in' => $check_in,
+        ':check_out' => $check_out,
+        ':duration' => $duration
+    ]);
 
-    try {
-        // (Optional) Verify that user_id actually exists in the `users` table.
-        // This ensures we don't violate the foreign key constraint.
-        $checkUser = $pdo->prepare("SELECT userid FROM users WHERE userid = :user_id");
-        $checkUser->execute([':user_id' => $user_id]);
-        if ($checkUser->rowCount() == 0) {
-            die("Error: User with userid=$user_id does not exist. Booking failed.");
-        }
-
-        // Prepare the SQL statement with placeholders
-        $sql = "INSERT INTO bookings (user_id, room, package, meal, additional) 
-                VALUES (:user_id, :room, :package, :meal, :additional)";
-        $stmt = $pdo->prepare($sql);
-
-        // Bind parameters
-        $stmt->bindParam(':user_id',    $user_id,    PDO::PARAM_INT);
-        $stmt->bindParam(':room',       $room,       PDO::PARAM_STR);
-        $stmt->bindParam(':package',    $package,    PDO::PARAM_STR);
-        $stmt->bindParam(':meal',       $meal,       PDO::PARAM_STR);
-        $stmt->bindParam(':additional', $additional, PDO::PARAM_STR);
-
-        // Execute the query
-        if ($stmt->execute()) {
-            echo "Booking Confirmed!";
-        } else {
-            echo "Booking failed. Please try again.";
-        }
-    } catch (PDOException $e) {
-        // Display any errors
-        echo "Error: " . $e->getMessage();
-    }
+    // Display a well-designed success message
+    echo "
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                background-color: #f4f4f4;
+                padding: 50px;
+            }
+            .success-box {
+                background: #4CAF50;
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                display: inline-block;
+                box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            }
+            .success-box h2 {
+                margin: 0;
+            }
+            .success-box p {
+                font-size: 18px;
+            }
+            .button {
+                margin-top: 20px;
+                display: inline-block;
+                background: white;
+                color: #4CAF50;
+                padding: 10px 20px;
+                border-radius: 5px;
+                text-decoration: none;
+                font-weight: bold;
+                transition: 0.3s;
+            }
+            .button:hover {
+                background: #45a049;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <div class='success-box'>
+            <h2>Booking Successful! 🎉</h2>
+            <p>Your reservation has been recorded.</p>
+            <a href='dashboard.php' class='button'>Go Back to Dashboard</a>
+        </div>
+    </body>
+    </html>";
+    
+} catch (PDOException $e) {
+    echo "<div class='error-message'>Error: " . $e->getMessage() . "</div>";
 }
 ?>

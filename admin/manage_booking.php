@@ -1,31 +1,47 @@
 <?php
-session_start();
-if (!isset($_SESSION['admin_logged_in'])) {
-    header("Location: login.php");
+require_once '../classes/Database.php'; // Adjust path if needed
+
+$conn = connectDatabase();
+
+// --- Handle Approve ---
+if (isset($_GET['approve'])) {
+    $booking_id = (int)$_GET['approve'];
+    $stmt = $conn->prepare("UPDATE bookings SET status = 'Approved' WHERE booking_id = ?");
+    $stmt->execute([$booking_id]);
+    header("Location: manage_bookings.php");
     exit;
 }
 
-require_once '../database.php'; // Ensure the database connection
-
-// Handle Booking Status Updates
-if (isset($_POST['action']) && isset($_POST['booking_id'])) {
-    $booking_id = $_POST['booking_id'];
-    $status = $_POST['action']; // 'Approved' or 'Rejected'
-
-    // Update booking status
-    $stmt = $pdo->prepare("UPDATE bookings SET status = ? WHERE id = ?");
-    if ($stmt->execute([$status, $booking_id])) {
-        echo "Booking status updated successfully!";
-    } else {
-        echo "Failed to update booking status.";
-    }
+// --- Handle Reject ---
+if (isset($_GET['reject'])) {
+    $booking_id = (int)$_GET['reject'];
+    $stmt = $conn->prepare("UPDATE bookings SET status = 'Rejected' WHERE booking_id = ?");
+    $stmt->execute([$booking_id]);
+    header("Location: manage_bookings.php");
+    exit;
 }
 
-// Fetch All Bookings
-$stmt = $pdo->query("SELECT b.id, u.name AS user_name, b.room, b.package, b.meal, b.additional, b.status, b.created_at 
-                     FROM bookings b 
-                     JOIN users u ON b.user_id = u.userid 
-                     ORDER BY b.created_at DESC");
+// --- Handle Delete ---
+if (isset($_GET['delete'])) {
+    $booking_id = (int)$_GET['delete'];
+    $stmt = $conn->prepare("DELETE FROM bookings WHERE booking_id = ?");
+    $stmt->execute([$booking_id]);
+    header("Location: manage_bookings.php");
+    exit;
+}
+
+// --- Fetch All Bookings with JOIN for user & room info ---
+$sql = "
+    SELECT b.booking_id, b.user_id, b.room_id, b.check_in, b.check_out, b.status,
+           u.email AS user_email,     -- Using email from users table
+           r.room_type
+    FROM bookings b
+    JOIN users u ON b.user_id = u.userid
+    JOIN rooms r ON b.room_id = r.room_id
+    ORDER BY b.booking_id DESC
+";
+$stmt = $conn->prepare($sql);
+$stmt->execute();
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -33,45 +49,82 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Bookings</title>
-    <link rel="stylesheet" href="../assets/style.css"> <!-- Ensure styling -->
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
+
+<div class="container mt-4">
     <h2>Manage Bookings</h2>
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Room</th>
-            <th>Package</th>
-            <th>Meal</th>
-            <th>Additional</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-        <?php foreach ($bookings as $booking): ?>
+    <a href="admin_dashboard.php" class="btn btn-secondary mb-3">Back to Dashboard</a>
+
+    <table class="table table-bordered">
+        <thead>
             <tr>
-                <td><?= $booking['id'] ?></td>
-                <td><?= htmlspecialchars($booking['user_name']) ?></td>
-                <td><?= htmlspecialchars($booking['room']) ?></td>
-                <td><?= htmlspecialchars($booking['package']) ?></td>
-                <td><?= htmlspecialchars($booking['meal']) ?></td>
-                <td><?= htmlspecialchars($booking['additional']) ?></td>
-                <td><?= htmlspecialchars($booking['status']) ?></td>
-                <td>
-                    <?php if ($booking['status'] == 'Pending'): ?>
-                        <form method="POST">
-                            <input type="hidden" name="booking_id" value="<?= $booking['id'] ?>">
-                            <button type="submit" name="action" value="Approved">Approve</button>
-                            <button type="submit" name="action" value="Rejected">Reject</button>
-                        </form>
-                    <?php else: ?>
-                        <?= $booking['status'] ?>
-                    <?php endif; ?>
-                </td>
+                <th>Booking ID</th>
+                <th>User (Email)</th>
+                <th>Room</th>
+                <th>Check-In</th>
+                <th>Check-Out</th>
+                <th>Status</th>
+                <th>Actions</th>
             </tr>
-        <?php endforeach; ?>
+        </thead>
+        <tbody>
+        <?php if (count($bookings) === 0): ?>
+            <tr>
+                <td colspan="7" class="text-center">No bookings found.</td>
+            </tr>
+        <?php else: ?>
+            <?php foreach ($bookings as $booking): ?>
+                <tr>
+                    <td><?= $booking['booking_id'] ?></td>
+                    <td><?= htmlspecialchars($booking['user_email']) ?></td>
+                    <td><?= htmlspecialchars($booking['room_type']) ?> (ID <?= $booking['room_id'] ?>)</td>
+                    <td><?= $booking['check_in'] ?></td>
+                    <td><?= $booking['check_out'] ?></td>
+                    <td>
+                        <?php
+                            $status = $booking['status'];
+                            $badgeClass = 'secondary';
+                            if ($status === 'Approved') {
+                                $badgeClass = 'success';
+                            } elseif ($status === 'Rejected') {
+                                $badgeClass = 'danger';
+                            } elseif ($status === 'Pending') {
+                                $badgeClass = 'warning';
+                            }
+                        ?>
+                        <span class="badge bg-<?= $badgeClass ?>">
+                            <?= $status ?>
+                        </span>
+                    </td>
+                    <td>
+                        <?php if ($booking['status'] === 'Pending'): ?>
+                            <a href="?approve=<?= $booking['booking_id'] ?>"
+                               class="btn btn-success btn-sm"
+                               onclick="return confirm('Approve this booking?');">
+                               Approve
+                            </a>
+                            <a href="?reject=<?= $booking['booking_id'] ?>"
+                               class="btn btn-warning btn-sm"
+                               onclick="return confirm('Reject this booking?');">
+                               Reject
+                            </a>
+                        <?php endif; ?>
+                        <a href="?delete=<?= $booking['booking_id'] ?>"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Delete this booking permanently?');">
+                           Delete
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        </tbody>
     </table>
+</div>
+
 </body>
 </html>

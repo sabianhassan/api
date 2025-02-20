@@ -1,93 +1,117 @@
 <?php
-require_once __DIR__ . '/../classes/Database.php'; // Correct path
+require_once '../classes/Database.php'; // Ensure this path is correct for your project
 
-$pdo = connectDatabase();
-$rooms = $pdo->query("SELECT * FROM rooms")->fetchAll(PDO::FETCH_ASSOC);
+// Connect using the function instead of a class
+$conn = connectDatabase();
+
+// Handle room addition
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["add_room"])) {
+    $room_type = $_POST["room_type"];
+    $price = $_POST["price"];
+
+    // Assign room_id based on type
+    $room_id_range = [
+        "Single" => [100, 150],
+        "Double" => [151, 176],
+        "Suite"  => [177, 202]
+    ];
+
+    if (isset($room_id_range[$room_type])) {
+        $range = $room_id_range[$room_type];
+        $stmt = $conn->prepare("SELECT MAX(room_id) FROM rooms WHERE room_id BETWEEN ? AND ?");
+        $stmt->execute([$range[0], $range[1]]);
+        $max_id = $stmt->fetchColumn() ?? $range[0] - 1;
+        $new_room_id = ($max_id < $range[1]) ? $max_id + 1 : null;
+    } else {
+        $new_room_id = null;
+    }
+
+    if ($new_room_id) {
+        $stmt = $conn->prepare("INSERT INTO rooms (room_id, room_type, price, status) VALUES (?, ?, ?, 'Available')");
+        $stmt->execute([$new_room_id, $room_type, $price]);
+    }
+}
+
+// Handle room deletion
+if (isset($_GET['delete'])) {
+    $room_id = $_GET['delete'];
+    $stmt = $conn->prepare("DELETE FROM rooms WHERE room_id = ?");
+    $stmt->execute([$room_id]);
+    header("Location: manage_rooms.php");
+    exit;
+}
+
+// Fetch all rooms
+$stmt = $conn->prepare("SELECT * FROM rooms ORDER BY room_id ASC");
+$stmt->execute();
+$rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Rooms</title>
-    <link rel="stylesheet" href="../assets/admin_styles.css"> <!-- Keep styles separate -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1e1e2f; /* Dark theme */
-            color: #ffffff;
-            margin: 20px;
-            text-align: center;
-        }
-        h2 {
-            margin-bottom: 20px;
-        }
-        table {
-            width: 80%;
-            margin: 0 auto;
-            border-collapse: collapse;
-            background-color: #2a2a3a;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        th, td {
-            padding: 12px;
-            border: 1px solid #444;
-            text-align: center;
-        }
-        th {
-            background-color: #33334d;
-        }
-        tr:nth-child(even) {
-            background-color: #3a3a5a;
-        }
-        a {
-            text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        .edit-btn {
-            background-color: #4caf50;
-            color: white;
-        }
-        .delete-btn {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .edit-btn:hover {
-            background-color: #45a049;
-        }
-        .delete-btn:hover {
-            background-color: #c0392b;
-        }
-    </style>
+    <link rel="stylesheet" href="../../assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
+
+<div class="container mt-4">
     <h2>Manage Rooms</h2>
-    <table>
+    <a href="admin_dashboard.php" class="btn btn-secondary mb-3">Back to Dashboard</a>
+
+    <!-- Add Room Form -->
+    <form method="post" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <label>Room Type:</label>
+                <select name="room_type" class="form-control" required>
+                    <option value="Single">Single</option>
+                    <option value="Double">Double</option>
+                    <option value="Suite">Suite</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Price (USD):</label>
+                <input type="number" name="price" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" name="add_room" class="btn btn-primary mt-4">Add Room</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Room Table -->
+    <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Room Type</th>
+                <th>Room ID</th>
+                <th>Type</th>
                 <th>Price</th>
-                <th>Available Rooms</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($rooms as $room): ?>
-            <tr>
-                <td><?php echo htmlspecialchars($room['room_type']); ?></td>
-                <td>$<?php echo htmlspecialchars($room['price']); ?></td>
-                <td><?php echo htmlspecialchars($room['quantity']); ?></td>
-                <td>
-                    <a href="edit_room.php?id=<?php echo $room['id']; ?>" class="edit-btn">Edit</a>
-                    <a href="delete_room.php?id=<?php echo $room['id']; ?>" class="delete-btn" onclick="return confirm('Are you sure?')">Delete</a>
-                </td>
-            </tr>
+                <tr>
+                    <td><?= $room['room_id'] ?></td>
+                    <td><?= $room['room_type'] ?></td>
+                    <td>$<?= number_format($room['price'], 2) ?></td>
+                    <td><?= $room['status'] ?></td>
+                    <td>
+                        <a href="?delete=<?= $room['room_id'] ?>" 
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you sure you want to delete this room?');">
+                           Delete
+                        </a>
+                    </td>
+                </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
+</div>
+
 </body>
 </html>
