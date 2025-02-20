@@ -8,7 +8,7 @@ if (isset($_GET['approve'])) {
     $booking_id = (int)$_GET['approve'];
     $stmt = $conn->prepare("UPDATE bookings SET status = 'Approved' WHERE booking_id = ?");
     $stmt->execute([$booking_id]);
-    header("Location: manage_bookings.php");
+    header("Location: manage_booking.php");
     exit;
 }
 
