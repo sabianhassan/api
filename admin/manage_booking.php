@@ -26,7 +26,7 @@ if (isset($_GET['delete'])) {
     $booking_id = (int)$_GET['delete'];
     $stmt = $conn->prepare("DELETE FROM bookings WHERE booking_id = ?");
     $stmt->execute([$booking_id]);
-    header("Location: manage_bookings.php");
+    header("Location: manage_booking.php");
     exit;
 }
 
