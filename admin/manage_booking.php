@@ -17,7 +17,7 @@ if (isset($_GET['reject'])) {
     $booking_id = (int)$_GET['reject'];
     $stmt = $conn->prepare("UPDATE bookings SET status = 'Rejected' WHERE booking_id = ?");
     $stmt->execute([$booking_id]);
-    header("Location: manage_bookings.php");
+    header("Location: manage_booking.php");
     exit;
 }
 
