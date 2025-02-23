@@ -4,7 +4,7 @@ require '../classes/Database.php';
 
 $pdo = connectDatabase();
 
-// Group bookings by the date of check_in
+// Group bookings by check_in date
 $stmt = $pdo->query("
     SELECT DATE(check_in) AS date, COUNT(*) AS total
     FROM bookings
