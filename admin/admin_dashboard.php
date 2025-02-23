@@ -88,6 +88,8 @@
                     <a href="manage_rooms.php" class="btn btn-outline-success btn-sm">Manage Rooms</a>
                     <a href="manage_booking.php" class="btn btn-outline-warning btn-sm">Manage Bookings</a>
                     <a href="manage_packages.php" class="btn btn-outline-danger btn-sm">Manage Packages</a>
+                    <li><a href="analytics.php"><i class="fas fa-chart-line"></i> Analytics</a></li>
+
                 </div>
             </div>
         </div>
