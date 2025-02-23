@@ -73,6 +73,7 @@
                         ?>
                     </h2>
                     <a href="manage_packages.php" class="btn btn-light btn-sm">Manage Packages</a>
+                    
                 </div>
             </div>
         </div>
@@ -81,22 +82,36 @@
     <!-- Quick Actions -->
     <div class="row">
         <div class="col-md-6">
-            <div class="card border-primary">
+            <div class="card border-primary mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Quick Actions</h5>
-                    <a href="manage_users.php" class="btn btn-outline-primary btn-sm">Manage Users</a>
-                    <a href="manage_rooms.php" class="btn btn-outline-success btn-sm">Manage Rooms</a>
-                    <a href="manage_booking.php" class="btn btn-outline-warning btn-sm">Manage Bookings</a>
-                    <a href="manage_packages.php" class="btn btn-outline-danger btn-sm">Manage Packages</a>
-                    <li><a href="analytics.php"><i class="fas fa-chart-line"></i> Analytics</a></li>
-
+                    <a href="manage_users.php" class="btn btn-outline-primary btn-sm mb-2">Manage Users</a>
+                    <a href="manage_rooms.php" class="btn btn-outline-success btn-sm mb-2">Manage Rooms</a>
+                    <a href="manage_booking.php" class="btn btn-outline-warning btn-sm mb-2">Manage Bookings</a>
+                    <a href="manage_packages.php" class="btn btn-outline-danger btn-sm mb-2">Manage Packages</a>
                 </div>
             </div>
         </div>
 
         <div class="col-md-6">
+            <div class="card border-info mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Analytics</h5>
+                    <!-- Spaced Analytics Icon Button -->
+                    <a href="analytics.php" class="btn btn-outline-info btn-lg" style="padding: 15px 30px;" title="Analytics">
+                        <i class="fas fa-chart-line" style="font-size: 24px;"></i>
+                        <br>View Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Settings -->
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
             <div class="card border-dark">
-                <div class="card-body">
+                <div class="card-body text-center">
                     <h5 class="card-title">Admin Settings</h5>
                     <a href="admin_logout.php" class="btn btn-dark btn-sm">Logout</a>
                 </div>
