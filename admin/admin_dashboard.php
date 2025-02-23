@@ -1,109 +1,106 @@
-<?php
-require_once __DIR__ . '/../classes/Database.php'; // Correct path
-$pdo = connectDatabase();
+<?php include 'admin_dashboard_header.php'; ?>
 
-// Get total rooms
-$total_rooms = $pdo->query("SELECT SUM(quantity) FROM rooms")->fetchColumn();
+<div class="container-fluid">
+    <h2 class="mt-3">Welcome, <?= htmlspecialchars($_SESSION['admin_username']) ?> 👋</h2>
+    <p class="text-muted">Here is a quick overview of the hotel management system.</p>
 
-// Get inventory stats
-$total_inventory = $pdo->query("SELECT COUNT(*) FROM inventories")->fetchColumn();
-$low_stock_items = $pdo->query("SELECT COUNT(*) FROM inventories WHERE quantity < 5")->fetchColumn();
-?>
+    <?php
+    // Include your function-based Database file
+    require '../classes/Database.php';
+    // Call the function to get the PDO connection
+    $pdo = connectDatabase();
+    ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../assets/css/admin_styles.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- FontAwesome Icons -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for graphs -->
-</head>
-<body>
-
-    <!-- Sidebar Navigation -->
-    <div class="sidebar">
-        <div class="header">Admin Panel</div>
-        <a href="admin_dashboard.php"><i class="fas fa-home"></i> Dashboard</a>
-        <a href="manage_rooms.php"><i class="fas fa-bed"></i> Manage Rooms</a>
-        <a href="manage_booking.php"><i class="fas fa-calendar-check"></i> Manage Bookings</a>
-        <a href="manage_users.php"><i class="fas fa-user"></i> Manage Users</a>
-        <a href="manage_packages.php"><i class="fas fa-box"></i> Packages & Meals</a>
-        <a href="manage_inventories.php"><i class="fas fa-warehouse"></i> Manage Inventories</a>
-        <a href="reports.php"><i class="fas fa-chart-line"></i> Reports & Analytics</a>
-        <a href="admin_logout.php" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <h2>Welcome to Admin Dashboard</h2>
-
-        <!-- Statistics Summary -->
-        <div class="stats-container">
-            <div class="stat-box">
-                <h3>Total Rooms</h3>
-                <p><?php echo $total_rooms; ?></p>
-            </div>
-            <div class="stat-box">
-                <h3>Total Inventory Items</h3>
-                <p><?php echo $total_inventory; ?></p>
-            </div>
-            <div class="stat-box low-stock">
-                <h3>Low Stock Items</h3>
-                <p><?php echo $low_stock_items; ?></p>
+    <!-- Dashboard Cards -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text">Manage registered users.</p>
+                    <h2 class="text-center">
+                        <?php
+                        $stmt = $pdo->query("SELECT COUNT(*) FROM users");
+                        echo $stmt->fetchColumn();
+                        ?>
+                    </h2>
+                    <a href="manage_users.php" class="btn btn-light btn-sm">View Users</a>
+                </div>
             </div>
         </div>
 
-        <!-- Inventory Report -->
-        <div class="inventory-report">
-            <h3>Inventory Overview</h3>
-            <canvas id="inventoryChart"></canvas>
-            <button onclick="exportPDF()">Export to PDF</button>
-            <button onclick="exportExcel()">Export to Excel</button>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Rooms</h5>
+                    <p class="card-text">Monitor and manage hotel rooms.</p>
+                    <h2 class="text-center">
+                        <?php
+                        $stmt = $pdo->query("SELECT COUNT(*) FROM rooms");
+                        echo $stmt->fetchColumn();
+                        ?>
+                    </h2>
+                    <a href="manage_rooms.php" class="btn btn-light btn-sm">Manage Rooms</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Bookings</h5>
+                    <p class="card-text">Approve or reject booking requests.</p>
+                    <h2 class="text-center">
+                        <?php
+                        $stmt = $pdo->query("SELECT COUNT(*) FROM bookings WHERE status = 'Pending'");
+                        echo $stmt->fetchColumn();
+                        ?>
+                    </h2>
+                    <a href="manage_booking.php" class="btn btn-light btn-sm">Manage Bookings</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Packages</h5>
+                    <p class="card-text">Add or edit packages & meals.</p>
+                    <h2 class="text-center">
+                        <?php
+                        $stmt = $pdo->query("SELECT COUNT(*) FROM packages");
+                        echo $stmt->fetchColumn();
+                        ?>
+                    </h2>
+                    <a href="manage_packages.php" class="btn btn-light btn-sm">Manage Packages</a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script>
-        // Fetch inventory data dynamically (example AJAX request)
-        function loadInventoryData() {
-            fetch("fetch_inventory_data.php")
-                .then(response => response.json())
-                .then(data => {
-                    const ctx = document.getElementById("inventoryChart").getContext("2d");
-                    new Chart(ctx, {
-                        type: "bar",
-                        data: {
-                            labels: data.labels,
-                            datasets: [{
-                                label: "Stock Quantity",
-                                data: data.values,
-                                backgroundColor: ["#3498db", "#e74c3c", "#2ecc71"],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false
-                        }
-                    });
-                });
-        }
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <a href="manage_users.php" class="btn btn-outline-primary btn-sm">Manage Users</a>
+                    <a href="manage_rooms.php" class="btn btn-outline-success btn-sm">Manage Rooms</a>
+                    <a href="manage_booking.php" class="btn btn-outline-warning btn-sm">Manage Bookings</a>
+                    <a href="manage_packages.php" class="btn btn-outline-danger btn-sm">Manage Packages</a>
+                </div>
+            </div>
+        </div>
 
-        // Call function on page load
-        document.addEventListener("DOMContentLoaded", loadInventoryData);
+        <div class="col-md-6">
+            <div class="card border-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Admin Settings</h5>
+                    <a href="admin_logout.php" class="btn btn-dark btn-sm">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-        // Export functions (Placeholder)
-        function exportPDF() {
-            alert("Exporting report to PDF...");
-            // Implement PDF export logic
-        }
-
-        function exportExcel() {
-            alert("Exporting report to Excel...");
-            // Implement Excel export logic
-        }
-    </script>
-
-</body>
-</html>
+<?php include 'admin_dashboard_footer.php'; ?>
