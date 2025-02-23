@@ -1,91 +1,125 @@
 <?php
-require_once '../classes/Database.php'; // Ensure correct path
+session_start();
 
-// Extract form values safely
-$user_id = $_POST['user_id'] ?? null;
-$room_id = $_POST['room_id'] ?? null;
-$package = $_POST['package'] ?? null;
-$meal = $_POST['meal'] ?? null;
-$additional = $_POST['additional'] ?? null; // Can be empty
-$check_in = $_POST['check_in'] ?? null;
-$check_out = $_POST['check_out'] ?? null;
-$duration = $_POST['duration'] ?? null;
+// Always load the database and create the $pdo connection first
+require_once '../classes/Database.php';
+$pdo = connectDatabase();
 
-// Validate required fields
-if (empty($user_id) || empty($room_id) || empty($check_in) || empty($check_out)) {
-    die("<div class='error-message'>Error: Missing required fields.</div>");
+// If user_id is not set, try to retrieve it using the email stored in the session.
+if (!isset($_SESSION['user_id']) && isset($_SESSION['email'])) {
+    // Query the database for the userid using the email
+    $stmt = $pdo->prepare("SELECT userid FROM users WHERE email = ?");
+    $stmt->execute([$_SESSION['email']]);
+    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($userData) {
+        $_SESSION['user_id'] = $userData['userid'];
+    } else {
+        header("Location: ../views/login.php");
+        exit();
+    }
 }
 
-try {
-    $conn = connectDatabase(); // Use function to get database connection
-
-    // Insert booking into the database
-    $stmt = $conn->prepare("INSERT INTO bookings (user_id, room_id, package, meal, additional, check_in, check_out, duration, status) 
-                            VALUES (:user_id, :room_id, :package, :meal, :additional, :check_in, :check_out, :duration, 'Pending')");
-    
-    $stmt->execute([
-        ':user_id' => $user_id,
-        ':room_id' => $room_id,
-        ':package' => $package,
-        ':meal' => $meal,
-        ':additional' => $additional,
-        ':check_in' => $check_in,
-        ':check_out' => $check_out,
-        ':duration' => $duration
-    ]);
-
-    // Display a well-designed success message
-    echo "
-    <html>
-    <head>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                text-align: center;
-                background-color: #f4f4f4;
-                padding: 50px;
-            }
-            .success-box {
-                background: #4CAF50;
-                color: white;
-                padding: 20px;
-                border-radius: 10px;
-                display: inline-block;
-                box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-            }
-            .success-box h2 {
-                margin: 0;
-            }
-            .success-box p {
-                font-size: 18px;
-            }
-            .button {
-                margin-top: 20px;
-                display: inline-block;
-                background: white;
-                color: #4CAF50;
-                padding: 10px 20px;
-                border-radius: 5px;
-                text-decoration: none;
-                font-weight: bold;
-                transition: 0.3s;
-            }
-            .button:hover {
-                background: #45a049;
-                color: white;
-            }
-        </style>
-    </head>
-    <body>
-        <div class='success-box'>
-            <h2>Booking Successful! 🎉</h2>
-            <p>Your reservation has been recorded.</p>
-            <a href='dashboard.php' class='button'>Go Back to Dashboard</a>
-        </div>
-    </body>
-    </html>";
-    
-} catch (PDOException $e) {
-    echo "<div class='error-message'>Error: " . $e->getMessage() . "</div>";
+// Final check: if user_id is still not set, redirect to login.
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../views/login.php");
+    exit();
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user_id = $_SESSION['user_id'];
+    $room_id = $_POST['room_id'] ?? null;
+    $package = $_POST['package'] ?? null;
+    $meal = $_POST['meal'] ?? null;
+    $duration = $_POST['duration'] ?? 1;
+    $additional = $_POST['additional'] ?? null;
+    $status = 'Pending';
+    
+    if (!$room_id || !$package || !$meal) {
+        $_SESSION['error'] = "All fields are required.";
+        header("Location: ../views/confirm_booking.php");
+        exit();
+    }
+    
+    try {
+        // Now $pdo is always defined
+        $stmt = $pdo->prepare("INSERT INTO bookings (user_id, room_id, package, meal, duration, additional, status) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$user_id, $room_id, $package, $meal, $duration, $additional, $status]);
+
+        $_SESSION['success'] = "Booking submitted successfully! Await admin approval.";
+
+        // Fetch the last inserted booking for confirmation
+        $booking_id = $pdo->lastInsertId();
+
+        // Change this line to match your table's primary key column (booking_id)
+        $stmt = $pdo->prepare("SELECT * FROM bookings WHERE booking_id = ?");
+        $stmt->execute([$booking_id]);
+        $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    } catch (PDOException $e) {
+        $_SESSION['error'] = "Error: " . $e->getMessage();
+        header("Location: ../views/confirm_booking.php");
+        exit();
+    }
+} else {
+    header("Location: ../views/confirm_booking.php");
+    exit();
+}
+
+include_once '../templates/header.php';
 ?>
+
+<div class="container mt-5">
+    <div class="booking-confirmation">
+        <h2 class="text-center">Booking Confirmation</h2>
+
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success">
+                <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($booking) && $booking): ?>
+            <div class="booking-details">
+                <!-- Change this from $booking['id'] to $booking['booking_id'] -->
+                <p><strong>Booking ID:</strong> <?php echo $booking['booking_id']; ?></p>
+                <p><strong>Room Number:</strong> <?php echo $booking['room_id']; ?></p>
+                <p><strong>Package:</strong> <?php echo $booking['package']; ?></p>
+                <p><strong>Meal Plan:</strong> <?php echo $booking['meal']; ?></p>
+                <p><strong>Additional Services:</strong> <?php echo $booking['additional'] ?: 'None'; ?></p>
+                <p><strong>Duration:</strong> <?php echo $booking['duration']; ?> days</p>
+                <p><strong>Status:</strong> <span class="badge bg-warning"><?php echo $booking['status']; ?></span></p>
+            </div>
+        <?php endif; ?>
+
+        <div class="text-center">
+            <a href="../views/dashboard.php" class="btn btn-primary">Return to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .booking-confirmation {
+        max-width: 600px;
+        margin: auto;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .booking-details p {
+        font-size: 16px;
+        margin: 5px 0;
+    }
+    .badge {
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+    .bg-warning {
+        background-color: orange;
+        color: white;
+    }
+</style>
+
+<?php include_once '../templates/footer.php'; ?>
