@@ -1,22 +1,45 @@
 <?php include_once '../templates/header.php'; ?>
 
+<?php
+require_once __DIR__ . '/../classes/Database.php';
+$pdo = connectDatabase();
+
+// Fetch all packages from the database
+$stmt = $pdo->prepare("SELECT * FROM packages ORDER BY package_id ASC");
+$stmt->execute();
+$packages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <div class="container mt-5">
     <h2 class="text-center">Select a Package</h2>
 
     <div class="room-selection">
-        <div class="room-card" onclick="togglePackage('Romantic Package')" id="package-romantic-package">
-            <img src="../assets/images/romantic1.jpeg" alt="Romantic Package">
-            <p>Romantic Package - $200</p>
-        </div>
-        <div class="room-card" onclick="togglePackage('Family Fun Package')" id="package-family-fun-package">
-            <img src="../assets/images/family1.jpeg" alt="Family Fun Package">
-            <p>Family Fun Package - $250</p>
-            <img src="../assets/images/family2.jpeg" alt="Family Fun Package">
-        </div>
-        <div class="room-card" onclick="togglePackage('Business Package')" id="package-business-package">
-            <img src="../assets/images/business1.jpeg" alt="Business Package">
-            <p>Business Package - $180</p>
-        </div>
+        <?php if(count($packages) > 0): ?>
+            <?php foreach($packages as $package): 
+                // Create a formatted ID similar to your original code
+                $formattedId = 'package-' . strtolower(str_replace(' ', '-', $package['name']));
+            ?>
+                <div class="room-card" onclick="togglePackage('<?php echo htmlspecialchars($package['name'], ENT_QUOTES); ?>')" id="<?php echo $formattedId; ?>">
+                    <?php
+                        // Display images based on package name
+                        if ($package['name'] === "Romantic Package") {
+                            echo "<img src='../assets/images/romantic1.jpeg' alt='Romantic Package'>";
+                        } elseif ($package['name'] === "Family Fun Package") {
+                            echo "<img src='../assets/images/family1.jpeg' alt='Family Fun Package'>";
+                            echo "<img src='../assets/images/family2.jpeg' alt='Family Fun Package'>";
+                        } elseif ($package['name'] === "Business Package") {
+                            echo "<img src='../assets/images/business1.jpeg' alt='Business Package'>";
+                        } else {
+                            // Fallback image if package name doesn't match any of the above
+                            echo "<img src='../assets/images/package_default.jpg' alt='" . htmlspecialchars($package['name'], ENT_QUOTES) . "'>";
+                        }
+                    ?>
+                    <p><?php echo htmlspecialchars($package['name']); ?> - $<?php echo number_format($package['price'], 2); ?></p>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p class="text-center">No packages available at the moment.</p>
+        <?php endif; ?>
     </div>
 
     <div class="navigation">
