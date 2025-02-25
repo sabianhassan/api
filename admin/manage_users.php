@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../classes/Database.php';
+require_once __DIR__ . '/../classes/Database.php'; // Ensure correct path
 $pdo = connectDatabase();
 
 // Securely delete user
@@ -14,43 +14,50 @@ $stmt = $pdo->query("SELECT * FROM users");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<!-- Minimal CSS for styling the table -->
+<?php include __DIR__ . '/../templates/admin_header.php'; ?>
+
+<!-- Inline CSS for dark mode styling -->
 <style>
-    .manage-users-container {
-        max-width: 800px;
-        margin: 40px auto;
+    body {
+        background-color: #222;
+        color: #ddd;
         font-family: Arial, sans-serif;
     }
-
+    .manage-users-container {
+        max-width: 900px;
+        margin: 40px auto;
+        background-color: #333;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
     .manage-users-container h2 {
         text-align: center;
         margin-bottom: 20px;
+        color: #fff;
     }
-
     table.manage-users-table {
         width: 100%;
         border-collapse: collapse;
     }
-
-    table.manage-users-table th,
+    table.manage-users-table th, 
     table.manage-users-table td {
-        border: 1px solid #ccc;
-        padding: 10px;
+        border: 1px solid #555;
+        padding: 12px;
         text-align: left;
     }
-
     table.manage-users-table th {
-        background-color: #f7f7f7;
+        background-color: #444;
+        color: #fff;
     }
-
-    /* Alternate row coloring */
     table.manage-users-table tr:nth-child(even) {
-        background-color: #f9f9f9;
+        background-color: #3a3a3a;
     }
-
-    /* Style for the delete link */
+    table.manage-users-table tr:nth-child(odd) {
+        background-color: #333;
+    }
     a.delete-link {
-        color: #d9534f;
+        color: #e74c3c;
         text-decoration: none;
         font-weight: bold;
     }
@@ -63,19 +70,22 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h2>Manage Users</h2>
 
     <table class="manage-users-table">
-        <tr>
-            <th>ID</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-        <?php foreach ($users as $user): ?>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($users as $user): ?>
             <tr>
                 <td><?= isset($user['userid']) ? htmlspecialchars($user['userid']) : 'N/A' ?></td>
                 <td><?= htmlspecialchars($user['email']) ?></td>
                 <td>
                     <?php if (isset($user['userid'])): ?>
-                        <a class="delete-link"
-                           href="manage_users.php?delete=<?= $user['userid'] ?>"
+                        <a class="delete-link" 
+                           href="manage_users.php?delete=<?= $user['userid'] ?>" 
                            onclick="return confirm('Are you sure you want to delete this user?')">
                            Delete
                         </a>
@@ -84,7 +94,8 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php endif; ?>
                 </td>
             </tr>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+        </tbody>
     </table>
 </div>
 
